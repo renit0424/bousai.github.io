@@ -6,9 +6,8 @@
   <link rel="stylesheet" href="amedas.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
-  <script type=”text/javascript” src="http://renit.starfree.jp/api/jjwd_get.php"></script>
   <script>
-    function init() {
+     function init() {
       var map = L.map('map',{zoomControl: false}).setView([37,137], 5);
       mapLink = '<a href="https://openstreetmap.org">OpenStreetMap</a>';
       L.tileLayer(
@@ -29,71 +28,111 @@
  
       map.locate({setView: true, maxZoom: 16, timeout: 20000});
         amedas();
-        function amedas() {
+        async function amedas() {
           var Line_W = 2;
           var num = 0;
           var len = 0;
-          var lat = 0;
-          var lng = 0;
-          var precip_1h = Number(0);
-          var stn_name_ja = "";
-          var stn_name_ja_kana = "";
+          var len2 = 0;
+          var lat = [];
+          var lon = [];
+          //var items[i].precipitation1h[0] = Number(0);
+          var stn_name_ja = [];
+          var stn_name_ja_kana = [];
+          var keys = [];
+          var items = [];
+          
+          var keys2 = [];
+          var items2 = [];
           //const url = 'http://renit.starfree.jp/api/data.json';
           //テストデータ
-          const url = 'https://www.jma.go.jp/bosai/amedas/data/map/20250708025000.json';
+          const url = 'https://www.jma.go.jp/bosai/amedas/data/map/20250709150000.json';
+
+          const url2 = 'https://www.jma.go.jp/bosai/amedas/const/amedastable.json';
+          //テストデータ
+          //const url = './test.json';
+          const response = await fetch(url);
+          const data = await response.json();
+          var str = JSON.stringify(data);
+          const json = JSON.parse(str);
+
+          Object.keys(json).map( key => {
+            items.push(json[key]);
+          })
+          for(var key in json) {
+            //console.log(key);
+            keys.push(key);
+          }
+
+
+          const response2 = await fetch(url2);
+          const data2 = await response2.json();
+          var str2 = JSON.stringify(data2);
+          const json2 = JSON.parse(str2);
+
+          Object.keys(json2).map( key => {
+            items2.push(json2[key]);
+          })
+          for(var key in json2) {
+            //console.log(key);
+            keys2.push(key);
+          }
+
+          len = keys.length;
+          console.log(len);
+
+          len2 = keys2.length;
+          console.log(len2);
           
-          fetch(url).then(function(response) {
-            return response.json();
-          }).then(function(json) {
-            len = Object.keys(json['stations']).length;
-            for(var i=0; i<=len; i++) {
-                lat = json.stations[i].lat;
-                lng = json.stations[i].lng;
-                num = json.stations[i].stn_num;
-                stn_name_ja = json.stations[i].stn_name_ja;
-                stn_name_ja_kana = json.stations[i].stn_name_ja_kana;
-                var time = json.stations[i].updatedAt;
-                if(Number(json.stations[i].preall) != null){
-                  precip_1h = Number(json.stations[i].preall.precip_1h);
-                  console.log(precip_1h);
-                  var up = document.getElementById("up");
-                  up.innerHTML = " ";
-                  if(precip_1h >= 80.0){
-                    var circle =  L.circle([lat,lng], {radius: 2400, color: "#9800af", fill: true, fillOpacity:1.0, weight: 0 }).bindPopup("<span class=font_size>"+stn_name_ja+"("+stn_name_ja_kana+")\n"+"1時間降水量\n"+precip_1h+"mm</span>").addTo(map);
-                  }
-                  else if(precip_1h >= 50.0&&precip_1h < 80.0){
-                    var circle =  L.circle([lat,lng], {radius: 2400, color: "#f20000", fill: true, fillOpacity:1.0, weight: 0 }).bindPopup("<span class=font_size>"+stn_name_ja+"("+stn_name_ja_kana+")\n"+"1時間降水量\n"+precip_1h+"mm</span>").addTo(map);
-                  }
-                  else if(precip_1h >= 30.0&&precip_1h < 50.0){
-                    var circle =  L.circle([lat,lng], {radius: 2400, color: "#ff9000", fill: true, fillOpacity:1.0, weight: 0 }).bindPopup("<span class=font_size>"+stn_name_ja+"("+stn_name_ja_kana+")\n"+"1時間降水量\n"+precip_1h+"mm</span>").addTo(map);
-                  }
-                  else if(precip_1h >= 20.0&&precip_1h < 30.0){
-                    var circle =  L.circle([lat,lng], {radius: 2400, color: "#d3cd00", fill: true, fillOpacity:1.0, weight: 0 }).bindPopup("<span class=font_size>"+stn_name_ja+"("+stn_name_ja_kana+")\n"+"1時間降水量\n"+precip_1h+"mm</span>").addTo(map);
-                  }
-                  else if(precip_1h >= 10.0&&precip_1h < 20.0){
-                    var circle =  L.circle([lat,lng], {radius: 2400, color: "#00bf0d", fill: true, fillOpacity:1.0, weight: 0 }).bindPopup("<span class=font_size>"+stn_name_ja+"("+stn_name_ja_kana+")\n"+"1時間降水量\n"+precip_1h+"mm</span>").addTo(map);
-                  }
-                  else if(precip_1h >= 5.0&&precip_1h < 10.0){
-                    var circle =  L.circle([lat,lng], {radius: 2400, color: "#009fa1", fill: true, fillOpacity:1.0, weight: 0 }).bindPopup("<span class=font_size>"+stn_name_ja+"("+stn_name_ja_kana+")\n"+"1時間降水量\n"+precip_1h+"mm</span>").addTo(map);
-                  }
-                  else if(precip_1h >= 1.0&&precip_1h < 5.0){
-                    var circle =  L.circle([lat,lng], {radius: 2400, color: "#00a9ff", fill: true, fillOpacity:1.0, weight: 0 }).bindPopup("<span class=font_size>"+stn_name_ja+"("+stn_name_ja_kana+")\n"+"1時間降水量\n"+precip_1h+"mm</span>").addTo(map);
-                  }
-                  else if(precip_1h <= 1.0&&precip_1h >=0.1){
-                    var circle =  L.circle([lat,lng], {radius: 2400, color: "#7e7e7e", fill: true, fillOpacity:1.0, weight: 0 }).bindPopup("<span class=font_size>"+stn_name_ja+"("+stn_name_ja_kana+")\n"+"1時間降水量\n"+precip_1h+"mm</span>").addTo(map);
-                  }
-                  else if(precip_1h == 0.0){
-                    var circle =  L.circle([lat,lng], {radius: 2400, color: "white", fill: false, fillOpacity:1.0, weight: 0 }).bindPopup("<span class=font_size>"+stn_name_ja+"("+stn_name_ja_kana+")\n"+"1時間降水量\n"+precip_1h+"mm</span>").addTo(map);
-                  }
-                  else{
-                  }
-                }
-                else{
-                    var circle =  L.circle([lat,lng], {radius: 1800, color: "black", fill: false, fillOpacity:0.0, weight: 0 }).bindPopup("なにもねぇ").addTo(map);
-                    console.log("何もないnull");
-                }
+          for(var i=0; i<=len; i++) {
+            //
+          }
+          for(var i=0; i<=len2; i++) {
+            //num = items2[i].stn_num;
+            console.log();
+            console.log(items2[i].kjName+items2[i].knName+items2[i].lat[0]+","+items2[i].lon[0]+","+items[i].precipitation1h[0]);
+            console.log();
+            //var time = json.stations[i].updatedAt;
+            //if(Number(items[i]) != null){
+            var up = document.getElementById("up");
+            up.innerHTML = " ";
+            if(items[i].precipitation1h[0] >= 80.0){
+              var circle =  L.circle([items2[i].lat[0],items2[i].lon[0]], {radius: 2400, color: "#9800af", fill: true, fillOpacity:1.0, weight: 0 }).bindPopup("<span class=font_size>"+items2[i].kjName+"("+items2[i].knNamekana+")\n"+"1時間降水量\n"+items[i].precipitation1h[0]+"mm</span>").addTo(map);
             }
-          });
+            else if(items[i].precipitation1h[0] >= 50.0&&items[i].precipitation1h[0] < 80.0){
+              var circle =  L.circle([items2[i].lat[0],items2[i].lon[0]], {radius: 2400, color: "#f20000", fill: true, fillOpacity:1.0, weight: 0 }).bindPopup("<span class=font_size>"+items2[i].kjName+"("+items2[i].knNamekana+")\n"+"1時間降水量\n"+items[i].precipitation1h[0]+"mm</span>").addTo(map);
+            }
+            else if(items[i].precipitation1h[0] >= 30.0&&items[i].precipitation1h[0] < 50.0){
+              var circle =  L.circle([items2[i].lat[0],items2[i].lon[0]], {radius: 2400, color: "#ff9000", fill: true, fillOpacity:1.0, weight: 0 }).bindPopup("<span class=font_size>"+items2[i].kjName+"("+items2[i].knNamekana+")\n"+"1時間降水量\n"+items[i].precipitation1h[0]+"mm</span>").addTo(map);
+            }
+            else if(items[i].precipitation1h[0] >= 20.0&&items[i].precipitation1h[0] < 30.0){
+              var circle =  L.circle([items2[i].lat[0],items2[i].lon[0]], {radius: 2400, color: "#d3cd00", fill: true, fillOpacity:1.0, weight: 0 }).bindPopup("<span class=font_size>"+items2[i].kjName+"("+items2[i].knNamekana+")\n"+"1時間降水量\n"+items[i].precipitation1h[0]+"mm</span>").addTo(map);
+            }
+            else if(items[i].precipitation1h[0] >= 10.0&&items[i].precipitation1h[0] < 20.0){
+              var circle =  L.circle([items2[i].lat[0],items2[i].lon[0]], {radius: 2400, color: "#00bf0d", fill: true, fillOpacity:1.0, weight: 0 }).bindPopup("<span class=font_size>"+items2[i].kjName+"("+items2[i].knNamekana+")\n"+"1時間降水量\n"+items[i].precipitation1h[0]+"mm</span>").addTo(map);
+            }
+            else if(items[i].precipitation1h[0] >= 5.0&&items[i].precipitation1h[0] < 10.0){
+              var circle =  L.circle([items2[i].lat[0],items2[i].lon[0]], {radius: 2400, color: "#009fa1", fill: true, fillOpacity:1.0, weight: 0 }).bindPopup("<span class=font_size>"+items2[i].kjName+"("+items2[i].knNamekana+")\n"+"1時間降水量\n"+items[i].precipitation1h[0]+"mm</span>").addTo(map);
+            }
+            else if(items[i].precipitation1h[0] >= 1.0&&items[i].precipitation1h[0] < 5.0){
+              var circle =  L.circle([items2[i].lat[0],items2[i].lon[0]], {radius: 2400, color: "#00a9ff", fill: true, fillOpacity:1.0, weight: 0 }).bindPopup("<span class=font_size>"+items2[i].kjName+"("+items2[i].knNamekana+")\n"+"1時間降水量\n"+items[i].precipitation1h[0]+"mm</span>").addTo(map);
+            }
+            else if(items[i].precipitation1h[0] <= 1.0&&items[i].precipitation1h[0] >=0.1){
+              var circle =  L.circle([items2[i].lat[0],items2[i].lon[0]], {radius: 2400, color: "#7e7e7e", fill: true, fillOpacity:1.0, weight: 0 }).bindPopup("<span class=font_size>"+items2[i].kjName+"("+items2[i].knNamekana+")\n"+"1時間降水量\n"+items[i].precipitation1h[0]+"mm</span>").addTo(map);
+            }
+            else if(items[i].precipitation1h[0] == 0.0){
+              var circle =  L.circle([items2[i].lat[0],items2[i].lon[0]], {radius: 2400, color: "white", fill: false, fillOpacity:1.0, weight: 0 }).bindPopup("<span class=font_size>"+items2[i].kjName+"("+items2[i].knNamekana+")\n"+"1時間降水量\n"+items[i].precipitation1h[0]+"mm</span>").addTo(map);
+              console.log("0.00mm");
+            }
+            else{
+              var circle =  L.circle([items2[i].lat[0],items2[i].lon[0]], {radius: 1800, color: "black", fill: false, fillOpacity:0.0, weight: 0 }).bindPopup("なにもねぇ").addTo(map);
+              console.log("何もないnull")
+            }
+            //}
+            //else{
+                var circle =  L.circle([items2[i].lat[0],items2[i].lon[0]], {radius: 1800, color: "black", fill: false, fillOpacity:0.0, weight: 0 }).bindPopup("なにもねぇ").addTo(map);
+                console.log("何もないnull");
+            //}
+          }
           var legend = L.control({position: "bottomright"});
           legend.onAdd = function (map) {
             var div = L.DomUtil.create("div", "info legend");
@@ -101,7 +140,7 @@
             labels = ["80mm.png", "50mm.png", "30mm.png", "20mm.png", "10mm.png", "5mm.png", "5mm-.png", "1mm.png"];
             for(var i = 0; i < grades.length; i++) {
               div.innerHTML +=
-              grades[i]+(" <img src=/bousai.github.io/amedas"+/image/+labels[i] + " height=20 width=20"+">")+"<br>";
+              grades[i]+(" <img src=https://bousai.renitapps.com/amedas/image/"+labels[i] + " height=20 width=20"+">")+"<br>";
               }
                 return div;
               };
@@ -114,7 +153,7 @@
   <script type="text/javascript" src="https://ad.netowl.jp/js/star-php.js"></script>
   <div id="map" class="max"></div>
   <div class="infopanel">
-    <a>【稼働停止】<br>1時間降水量(<a id="up"></a>)<br></a>
+    <a>【作成中】<br>1時間降水量(<a id="up"></a>)<br></a>
   </div>
 </body>
 </html>
