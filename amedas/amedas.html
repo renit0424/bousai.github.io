@@ -38,7 +38,9 @@
           var precip_1h = Number(0);
           var stn_name_ja = "";
           var stn_name_ja_kana = "";
-          const url = 'http://renit.starfree.jp/api/data.json';
+          //const url = 'http://renit.starfree.jp/api/data.json';
+          //テストデータ
+          const url = 'https://www.jma.go.jp/bosai/amedas/data/map/20250708025000.json';
           
           fetch(url).then(function(response) {
             return response.json();
