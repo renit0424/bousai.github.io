@@ -67,8 +67,8 @@
                 }
                 L.polyline(center02, {color: 'white',fillOpacity: 0,dashArray: '5, 5'}).addTo(map);
                 //"JST": "2025-07-18T12:00:00+09:00"
-                var validtime = json[0].validtime.JST;
-                console.log(validtime)
+                //var validtime = json[0].validtime.JST;
+                //console.log(validtime)
                 //現在位置の円
                 var now_point = L.circle(typhoon_center, {radius: 500,color: 'red',fillOpacity: 1}).addTo(map);
                 now_point.bindPopup("台風"+json[0].typhoonNumber.slice(2,4)+"号("+json[0].name.jp+")",{autoClose:false});
