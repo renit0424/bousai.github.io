@@ -1,1 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台風情報</title>
 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css"
+            integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+            crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"
+            integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA=="
+            crossorigin=""></script>
+</head>
+<body onload="init()">
+
+    <div id="mapid" style="position: absolute; top:0; left:0; right:0; bottom:0;"></div>
+
+    <script> 
+        function init(){
+            var url = 'https://www.jma.go.jp/bosai/typhoon/data/TC2509/forecast.json';
+            fetch(url).then(function(response) {
+                return response.json();
+            }).then(function(json) {
+                var center02 = new Array();
+                var len = json.length;
+
+                var map = L.map('mapid',{zoomControl:false}).setView(json[1].center, 5);
+
+                console.log(json[1].center)
+                var typhoon_center = json[1].center;
+                var preTyphoon = json[1].track.preTyphoon;
+                
+                var typhoon = json[1].typhoon;
+                
+                //台風のたどってきた道
+                L.polyline([json[1].center], {color: 'red'}).addTo(map);
+                
+                
+                //現在位置
+                var mpoint = typhoon_center;
+                
+                //強風域の円(黄色)
+                var galeWarningArea_center = json[1].galeWarningArea.center;
+                var galeWarningArea_radius = json[1].galeWarningArea.radius;
+                L.circle(galeWarningArea_center, {radius: galeWarningArea_radius,color: 'yellow',fillOpacity: 0}).addTo(map);
+                
+                //台風のたどってきた道２
+                var preTyphoon = json[1].track.preTyphoon;
+                var tangent = json[1].track.typhoon;
+                
+                L.polyline(preTyphoon, {color: 'white'}).addTo(map);
+                L.polyline(tangent, {color: 'white'}).addTo(map);
+                //ここまでが今の位置//
+                
+                //ここから予報//
+                center02.push(mpoint);
+                for(var i=2;i <= 6;i++){
+                    var radius01 = json[i].probabilityCircle.radius;
+                    var center01 = json[i].center;
+                    center02.push(center01);
+                    console.log(center01)
+                    L.circle(center01, {radius: radius01,color: 'white',fillOpacity: 0,dashArray: '5, 5'}).addTo(map);
+                    L.circle(center01, {radius: 200,color: 'white',fillOpacity: 1}).addTo(map);
+                    var tangent01 = json[i].probabilityCircle.tangent;
+                    L.polyline(tangent01, {color: 'white'}).addTo(map);
+                }
+                L.polyline(center02, {color: 'white',fillOpacity: 0,dashArray: '5, 5'}).addTo(map);
+                //"JST": "2025-07-18T12:00:00+09:00"
+                var validtime = json[0].validtime.JST;
+                console.log(validtime)
+                //現在位置の円
+                var now_point = L.circle(typhoon_center, {radius: 500,color: 'red',fillOpacity: 1}).addTo(map);
+                now_point.bindPopup("台風"+json[0].typhoonNumber.slice(2,4)+"号("+json[0].name.jp+")",{autoClose:false});
+                
+                //https://www.jma.go.jp/bosai/typhoon/image/cross.svg
+                
+                var osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>',
+                    maxZoom: 50});
+                    osm.addTo(map);  
+            })
+        }
+    </script>
+</body>
+</html>
