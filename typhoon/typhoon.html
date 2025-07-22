@@ -41,10 +41,14 @@
                 var mpoint = typhoon_center;
                 
                 //強風域の円(黄色)
-                var galeWarningArea_center = json[1].galeWarningArea.center;
-                var galeWarningArea_radius = json[1].galeWarningArea.radius;
-                L.circle(galeWarningArea_center, {radius: galeWarningArea_radius,color: 'yellow',fillOpacity: 0}).addTo(map);
-                
+                if (json[1].galeWarningArea != null){
+                    var galeWarningArea_center = json[1].galeWarningArea.center;
+                    var galeWarningArea_radius = json[1].galeWarningArea.radius;
+                    L.circle(galeWarningArea_center, {radius: galeWarningArea_radius,color: 'yellow',fillOpacity: 0}).addTo(map);
+                }
+                else{
+                    
+                }
                 //台風のたどってきた道２
                 var preTyphoon = json[1].track.preTyphoon;
                 var tangent = json[1].track.typhoon;
@@ -54,21 +58,23 @@
                 //ここまでが今の位置//
                 
                 //ここから予報//
-                center02.push(mpoint);
-                for(var i=2;i <= 6;i++){
-                    var radius01 = json[i].probabilityCircle.radius;
-                    var center01 = json[i].center;
-                    center02.push(center01);
-                    console.log(center01)
-                    L.circle(center01, {radius: radius01,color: 'white',fillOpacity: 0,dashArray: '5, 5'}).addTo(map);
-                    L.circle(center01, {radius: 200,color: 'white',fillOpacity: 1}).addTo(map);
-                    var tangent01 = json[i].probabilityCircle.tangent;
-                    L.polyline(tangent01, {color: 'white'}).addTo(map);
+                if(json[i] != null){
+                    center02.push(mpoint);
+                    for(var i=2;i <= 6;i++){
+                        var radius01 = json[i].probabilityCircle.radius;
+                        var center01 = json[i].center;
+                        center02.push(center01);
+                        console.log(center01)
+                        L.circle(center01, {radius: radius01,color: 'white',fillOpacity: 0,dashArray: '5, 5'}).addTo(map);
+                        L.circle(center01, {radius: 200,color: 'white',fillOpacity: 1}).addTo(map);
+                        var tangent01 = json[i].probabilityCircle.tangent;
+                        L.polyline(tangent01, {color: 'white'}).addTo(map);
+                    }
+                    L.polyline(center02, {color: 'white',fillOpacity: 0,dashArray: '5, 5'}).addTo(map);
+                    //"JST": "2025-07-18T12:00:00+09:00"
+                    var validtime = json[0].validtime.JST;
+                    console.log(validtime)
                 }
-                L.polyline(center02, {color: 'white',fillOpacity: 0,dashArray: '5, 5'}).addTo(map);
-                //"JST": "2025-07-18T12:00:00+09:00"
-                //var validtime = json[0].validtime.JST;
-                //console.log(validtime)
                 //現在位置の円
                 var now_point = L.circle(typhoon_center, {radius: 500,color: 'red',fillOpacity: 1}).addTo(map);
                 now_point.bindPopup("台風"+json[0].typhoonNumber.slice(2,4)+"号("+json[0].name.jp+")",{autoClose:false});
